@@ -45,6 +45,7 @@ def test_user_crud_and_unique_email_hash() -> None:
     r3 = client.get(f"/api/v1/users/{user_id}", headers={"x-api-key": "change-me"})
     assert r3.status_code == 200
     assert r3.json()["username"] == "dave"
+    assert r3.json()["verified"] is False
 
 
 def test_recipe_crud() -> None:

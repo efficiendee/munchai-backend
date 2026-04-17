@@ -21,6 +21,7 @@ class UserUpdateRequest(BaseModel):
 class UserResponse(BaseModel):
     id: str
     username: str
+    verified: bool
     is_active: bool
     created_at: str
     updated_at: str

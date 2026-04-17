@@ -15,6 +15,7 @@ def _to_user_response(doc: dict) -> UserResponse:
     return UserResponse(
         id=str(doc["_id"]),
         username=doc["username"],
+        verified=doc.get("verified", False),
         is_active=doc["is_active"],
         created_at=doc["created_at"],
         updated_at=doc["updated_at"],
@@ -32,6 +33,7 @@ def create_user(
         "username": body.username.strip(),
         "email_hash": hash_email(body.email),
         "password_hash": hash_password(body.password),
+        "verified": False,
         "is_active": True,
         "created_at": now,
         "updated_at": now,
