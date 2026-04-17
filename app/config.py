@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     allowed_origins: str = "http://localhost:3000,http://localhost:5173,http://localhost:8081"
     api_key: str = "change-me"
     rate_limit_per_minute: int = 120
+    mongodb_uri: str = "mongodb://localhost:27017"
+    mongodb_db: str = "munchai"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

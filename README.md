@@ -1,52 +1,69 @@
 # munchai-backend
 
-Security-first FastAPI backend draft for **munch.ai** frontend integration.
+Security-first FastAPI backend for **munch.ai** with MongoDB and Docker Compose.
 
-## Security principles
-- API key protection on app endpoints (`x-api-key` header)
+## Current architecture
+- FastAPI REST API (`api` container)
+- MongoDB (`mongo` container)
+- Collections:
+  - `users` (email_hash unique, username plaintext, password_hash)
+  - `recipes` (CRUD documents)
+
+## Security baseline
+- API key protection (`x-api-key`)
 - Basic per-IP rate limiting
-- Log redaction for sensitive patterns
-- No secrets committed to git
+- Redacted logs (no plain API keys/tokens)
+- No plaintext password/email persisted in DB
+- CORS allowlist via env
 
-## Quickstart (local)
-
-```bash
-cd projects/munchai-backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-```
-
-Start service:
-
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
-```
-
-Open docs:
-- http://localhost:8080/docs
-
-## Frontend integration
-Use these endpoints from munchai frontend:
+## Endpoints (REST)
 - `GET /health`
 - `POST /api/v1/auth/login`
+- `POST /api/v1/users`
+- `GET /api/v1/users/{id}`
+- `PATCH /api/v1/users/{id}`
+- `DELETE /api/v1/users/{id}`
+- `POST /api/v1/recipes`
 - `GET /api/v1/recipes`
+- `GET /api/v1/recipes/{id}`
+- `PUT /api/v1/recipes/{id}`
+- `PATCH /api/v1/recipes/{id}`
+- `DELETE /api/v1/recipes/{id}`
 
-Example request with API key:
+## Local run with Docker (recommended)
 
 ```bash
+cp .env.example .env
+docker compose up --build -d
+```
+
+Health checks:
+
+```bash
+curl http://localhost:8080/health
 curl -H "x-api-key: change-me" http://localhost:8080/api/v1/recipes
+```
+
+Stop:
+
+```bash
+docker compose down
 ```
 
 ## Tests
 
+### Docker-backed tests (Mongo required)
+
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# start mongo only for tests
+docker compose up -d mongo
 pytest -q
 ```
 
-## Planned next steps
-- Replace dummy repository with persistent DB + service layer
-- Add JWT auth with rotation
-- Add structured audit logging + request ids
-- Add CI pipeline + SAST/Dependency scanning
+## Notes for frontend integration
+- Use `x-api-key` header on all `/api/v1/*` routes except `/health`.
+- API base URL for local frontend: `http://localhost:8080`.
