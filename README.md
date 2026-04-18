@@ -14,6 +14,8 @@ Security-first FastAPI backend for **munch.ai** with MongoDB and Docker Compose.
 - Basic per-IP rate limiting
 - Redacted logs (no plain API keys/tokens)
 - No plaintext password/email persisted in DB
+- New users are created with `verified=false`; login only for `verified=true`
+- Placeholder verification-mail sender is wired on registration (non-functional by design)
 - CORS allowlist via env
 
 ## Endpoints (REST)
@@ -22,6 +24,7 @@ Security-first FastAPI backend for **munch.ai** with MongoDB and Docker Compose.
 - `POST /api/v1/users`
 - `GET /api/v1/users/{id}`
 - `PATCH /api/v1/users/{id}`
+- `POST /api/v1/users/{id}/verify` (sets `verified=true`)
 - `DELETE /api/v1/users/{id}`
 - `POST /api/v1/recipes`
 - `GET /api/v1/recipes`

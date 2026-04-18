@@ -13,7 +13,11 @@ def login(
     _api: None = Depends(check_api_key),
     _rate: None = Depends(check_rate_limit),
 ) -> LoginResponse:
-    user = get_db().users.find_one({"email_hash": hash_email(body.email), "is_active": True})
+    user = get_db().users.find_one({
+        "email_hash": hash_email(body.email),
+        "is_active": True,
+        "verified": True,
+    })
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 

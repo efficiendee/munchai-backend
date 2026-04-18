@@ -48,6 +48,31 @@ def test_user_crud_and_unique_email_hash() -> None:
     assert r3.json()["verified"] is False
 
 
+def test_login_requires_verified_user() -> None:
+    payload = {"username": "dave", "email": "dave@example.com", "password": "supersecret1"}
+    created = client.post("/api/v1/users", json=payload, headers={"x-api-key": "change-me"})
+    assert created.status_code == 201
+    user_id = created.json()["id"]
+
+    login_unverified = client.post(
+        "/api/v1/auth/login",
+        json={"email": payload["email"], "password": payload["password"]},
+        headers={"x-api-key": "change-me"},
+    )
+    assert login_unverified.status_code == 401
+
+    verify = client.post(f"/api/v1/users/{user_id}/verify", headers={"x-api-key": "change-me"})
+    assert verify.status_code == 200
+    assert verify.json()["verified"] is True
+
+    login_verified = client.post(
+        "/api/v1/auth/login",
+        json={"email": payload["email"], "password": payload["password"]},
+        headers={"x-api-key": "change-me"},
+    )
+    assert login_verified.status_code == 200
+
+
 def test_recipe_crud() -> None:
     recipe = {
         "title": "Test Recipe",

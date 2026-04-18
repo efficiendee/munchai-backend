@@ -7,6 +7,7 @@ from pymongo.errors import DuplicateKeyError
 from app.db_mongo import get_db, utc_now
 from app.schemas import UserCreateRequest, UserResponse, UserUpdateRequest
 from app.security import check_api_key, check_rate_limit, hash_email, hash_password
+from app.services.email_service import send_verification_email_placeholder
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
@@ -45,6 +46,7 @@ def create_user(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
 
     created = get_db().users.find_one({"_id": result.inserted_id})
+    send_verification_email_placeholder(body.email, str(result.inserted_id))
     return _to_user_response(created)
 
 
@@ -57,6 +59,26 @@ def get_user(
     doc = get_db().users.find_one({"_id": ObjectId(user_id)}) if ObjectId.is_valid(user_id) else None
     if not doc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return _to_user_response(doc)
+
+
+@router.post("/{user_id}/verify", response_model=UserResponse)
+def verify_user(
+    user_id: str,
+    _api: None = Depends(check_api_key),
+    _rate: None = Depends(check_rate_limit),
+) -> UserResponse:
+    if not ObjectId.is_valid(user_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    result = get_db().users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"verified": True, "updated_at": utc_now()}},
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    doc = get_db().users.find_one({"_id": ObjectId(user_id)})
     return _to_user_response(doc)
 
 
