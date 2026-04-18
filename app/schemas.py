@@ -10,12 +10,14 @@ class UserCreateRequest(BaseModel):
     username: str = Field(min_length=3, max_length=50)
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
+    taste_profile: str = Field(min_length=3, max_length=2000)
 
 
 class UserUpdateRequest(BaseModel):
     username: str | None = Field(default=None, min_length=3, max_length=50)
     password: str | None = Field(default=None, min_length=8, max_length=128)
     is_active: bool | None = None
+    taste_profile: str | None = Field(default=None, min_length=3, max_length=2000)
 
 
 class UserResponse(BaseModel):
@@ -23,6 +25,8 @@ class UserResponse(BaseModel):
     username: str
     verified: bool
     is_active: bool
+    taste_profile: str
+    initial_recipes_generated: bool
     created_at: str
     updated_at: str
 
@@ -34,7 +38,13 @@ class LoginRequest(BaseModel):
 
 class LoginResponse(BaseModel):
     token: str
+    token_type: str = "Bearer"
+    expires_in_seconds: int
     user_id: str
+
+
+class VerifyAccountRequest(BaseModel):
+    email: EmailStr
 
 
 class RecipeBase(BaseModel):
@@ -67,3 +77,8 @@ class RecipeResponse(RecipeBase):
     id: str
     created_at: str
     updated_at: str
+
+
+class BootstrapRecipesResponse(BaseModel):
+    count: int
+    categories: dict[str, int]

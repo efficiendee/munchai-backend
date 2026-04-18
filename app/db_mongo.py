@@ -30,6 +30,9 @@ def ensure_indexes() -> None:
     db.users.create_index([("email_hash", ASCENDING)], unique=True, name="uniq_email_hash")
     db.users.create_index([("username", ASCENDING)], unique=False, name="idx_username")
     db.recipes.create_index([("title", ASCENDING)], unique=False, name="idx_recipe_title")
+    db.recipes.create_index([("owner_user_id", ASCENDING)], unique=False, name="idx_recipe_owner")
+    db.sessions.create_index([("token_hash", ASCENDING)], unique=True, name="uniq_token_hash")
+    db.sessions.create_index([("user_id", ASCENDING)], unique=False, name="idx_session_user")
 
 
 def close_client() -> None:
