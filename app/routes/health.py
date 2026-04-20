@@ -6,5 +6,5 @@ router = APIRouter(tags=["health"])
 
 
 @router.get("/health", response_model=HealthResponse)
-async def health() -> HealthResponse:
+def health() -> HealthResponse:
     return HealthResponse(status="ok", service="munchai-backend")
